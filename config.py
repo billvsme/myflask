@@ -8,6 +8,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'simple flask website'
 
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'simple flask website'
+
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 465
     MAIL_USE_TLS = False

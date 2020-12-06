@@ -1,7 +1,11 @@
 # coding: utf-8
+from datetime import timedelta
+
+import arrow
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask_jwt_extended import create_access_token, decode_token
 
 from .. import db
 
@@ -13,6 +17,9 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
+    create_time = db.Column(db.DateTime, nullable=False, default=arrow.utcnow().datetime)
+    update_time = db.Column(db.DateTime, nullable=False, default=arrow.utcnow().datetime,
+                            onupdate=arrow.utcnow().datetime)
 
     @property
     def password(self):
@@ -29,6 +36,12 @@ class User(db.Model):
         s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id}).decode('utf-8')
 
+    def generate_auth_jwt_token(self, expiration=14*24*60*60):
+        return create_access_token(
+            {"id": self.id},
+            expires_delta=timedelta(seconds=expiration)
+        )
+
     @staticmethod
     def verify_auth_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -40,17 +53,16 @@ class User(db.Model):
         return User.query.get(data['id'])
 
     def generate_confirmation_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'confirm': self.id}).decode('utf-8')
+        return create_access_token(
+            {"confirm": self.id},
+            expires_delta=timedelta(seconds=expiration)
+        )
 
     def confirm(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data = s.loads(token.encode('utf-8'))
+            data = decode_token(token)
+            assert data['identity']['confirm'] == self.id
         except:
-            return False
-
-        if data.get('confirm') != self.id:
             return False
 
         self.confirmed = True
@@ -58,18 +70,20 @@ class User(db.Model):
         return True
 
     def generate_reset_token(self, expiration=60*60):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset': self.id}).decode('utf-8')
+        return create_access_token(
+            {"reset": self.id},
+            expires_delta=timedelta(seconds=expiration)
+        )
 
     @staticmethod
     def reset_password(token, new_password):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        user = None
         try:
-            data = s.loads(token.encode('utf-8'))
+            data = decode_token(token)
+            user = User.query.get(data['identity']['reset'])
         except:
             return False
 
-        user = User.query.get(data.get('reset'))
         if user is None:
             return False
         user.password = new_password

@@ -20,7 +20,7 @@ class AuthTestCase(unittest.TestCase):
 
     def get_headers(self, username, password):
         return {
-            'Authorization': 'Basic ' + b64encode(
+            'Authorization': 'Bearer ' + b64encode(
                 (username + ':' + password).encode('utf-8')).decode('utf-8'),
             'Accpet': 'application/json',
             'Content=Type': 'application/json'
@@ -38,7 +38,7 @@ class AuthTestCase(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('token' in response.get_json())
+        self.assertTrue('access_token' in response.get_json())
 
         # test login error
         response = self.client.post(
@@ -73,7 +73,7 @@ class AuthTestCase(unittest.TestCase):
 
         self.assertFalse(u.confirmed)
 
-        auth_token = response.get_json()['token']
+        auth_token = response.get_json()['access_token']
 
         confirm_token = u.generate_confirmation_token()
         response = self.client.get(

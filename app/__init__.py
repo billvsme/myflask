@@ -3,6 +3,7 @@ from flask import Flask
 from flask_mail import Mail
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 
 from config import config
 
@@ -19,6 +20,7 @@ def create_app(config_name):
 
     db.init_app(app)
     mail.init_app(app)
+    JWTManager(app)
 
     from . import handlers
     from .controllers.auth import auth_bp

@@ -27,7 +27,7 @@ def login():
         return unauthorized('email or password error')
 
     EXPIRATION = 14*24*60*60
-    return {'token': user.generate_auth_token(expiration=EXPIRATION), 'expiration': EXPIRATION}, 200
+    return {'access_token': user.generate_auth_token(expiration=EXPIRATION), 'expiration': EXPIRATION}, 200
 
 
 @auth_bp.route('/register', methods=['POST'])
