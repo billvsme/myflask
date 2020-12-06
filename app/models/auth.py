@@ -5,7 +5,7 @@ import arrow
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask_jwt_extended import create_access_token, decode_token
+from flask_jwt_extended import create_access_token, decode_token, get_jwt_identity
 
 from .. import db
 

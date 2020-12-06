@@ -2,7 +2,7 @@
 import unittest
 from base64 import b64encode
 from app import create_app, db
-from app.models.users import User
+from app.models.auth import User
 
 
 class AuthTestCase(unittest.TestCase):
@@ -18,10 +18,11 @@ class AuthTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def get_headers(self, username, password):
+    def get_headers(self, token):
         return {
-            'Authorization': 'Bearer ' + b64encode(
-                (username + ':' + password).encode('utf-8')).decode('utf-8'),
+            #'Authorization': 'Bearer ' + b64encode(
+            #    (username + ':' + password).encode('utf-8')).decode('utf-8'),
+            'Authorization': 'Bearer ' + token,
             'Accpet': 'application/json',
             'Content=Type': 'application/json'
         }
@@ -78,8 +79,9 @@ class AuthTestCase(unittest.TestCase):
         confirm_token = u.generate_confirmation_token()
         response = self.client.get(
             '/auth/confirm/{}'.format(confirm_token),
-            headers=self.get_headers(auth_token, '')
+            headers=self.get_headers(auth_token)
         )
+
         db.session.refresh(u)
 
         self.assertTrue(u.confirmed)
@@ -89,10 +91,10 @@ class AuthTestCase(unittest.TestCase):
         db.session.add(u)
         db.session.commit()
 
-        auth_token = u.generate_auth_token()
+        auth_token = u.generate_auth_jwt_token()
         response = self.client.post(
             '/auth/change-password',
-            headers=self.get_headers(auth_token, ''),
+            headers=self.get_headers(auth_token),
             json={'old_password': 'password', 'new_password': 'changed_password'}
         )
 

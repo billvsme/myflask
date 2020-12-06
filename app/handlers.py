@@ -2,7 +2,7 @@
 from flask import g, request
 
 from . import basic_auth
-from .models.users import User
+from .models.auth import User
 from .errors import unauthorized, forbidden
 from .controllers.auth import auth_bp
 
@@ -12,7 +12,7 @@ def verify_password(email_or_token, password):
     if email_or_token == '':
         return False
     if password == '':
-        g.current_user = User.verify_auth_token(email_or_token)
+        g.current_user = User.get_current_user(email_or_token)
         g.token_userd = True
         return g.current_user is not None
 

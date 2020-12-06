@@ -2,10 +2,11 @@
 from flask import g, request, Blueprint
 from schema import Schema, And, Use, Optional, SchemaError
 
+from ..utils import login_required
 from .. import db, basic_auth
 from ..email import send_email
 from ..errors import bad_request, forbidden, unauthorized
-from ..models.users import User
+from ..models.auth import User
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -27,7 +28,7 @@ def login():
         return unauthorized('email or password error')
 
     EXPIRATION = 14*24*60*60
-    return {'access_token': user.generate_auth_token(expiration=EXPIRATION), 'expiration': EXPIRATION}, 200
+    return {'access_token': user.generate_auth_jwt_token(expiration=EXPIRATION), 'expiration': EXPIRATION}, 200
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -59,7 +60,7 @@ def register():
 
 
 @auth_bp.route('/confirm')
-@basic_auth.login_required
+@login_required
 def resend_confirmation():
     EXPIRATION = 60 * 60
     token = g.current_user.generate_confirmation_token(EXPIRATION)
@@ -71,7 +72,7 @@ def resend_confirmation():
 
 
 @auth_bp.route('/confirm/<token>')
-@basic_auth.login_required
+@login_required
 def confirm(token):
     if g.current_user.confirmed:
         return bad_request('already confirmed')
@@ -81,7 +82,7 @@ def confirm(token):
 
 
 @auth_bp.route('/change-password', methods=['POST'])
-@basic_auth.login_required
+@login_required
 def change_password():
     json_data = request.get_json()
 
