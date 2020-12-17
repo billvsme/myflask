@@ -1,11 +1,14 @@
 # coding: utf-8
+import traceback
+import logging
+
 from flask import g, request
 
 from . import basic_auth
 from .models.auth import User
 from .errors import unauthorized, forbidden
-from .controllers.auth import auth_bp
 
+request_logger = logging.getLogger('request')
 
 @basic_auth.verify_password
 def verify_password(email_or_token, password):
@@ -30,15 +33,26 @@ def auth_error():
     return unauthorized('Invalid credentials')
 
 
-@auth_bp.before_app_request
 def before_request():
     if hasattr(g, 'current_user') \
             and not g.current_user.confirmed:
         return forbidden('Unconfirm account')
 
-@auth_bp.after_app_request
 def after_request(resp):
     resp.headers.add('Access-Control-Allow-Origin', '*')
     resp.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-Token')
     resp.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+    request_logger.info(
+        "{},{},{},{},{}".format(
+            request.url, resp.status, dict(request.args), request.get_json(), resp.data[:200]
+        )
+    )
     return resp
+
+def errorhandler(error):
+    request_logger.error(traceback.format_exc())
+
+def register_handlers(app):
+    app.before_request(before_request)
+    app.after_request(after_request)
+    app.errorhandler(500)(errorhandler)

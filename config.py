@@ -4,9 +4,47 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+        },
+        'verbose': {
+            'format': '[%(asctime)s] [%(levelname)s] [%(process)d] [%(funcName)s] [%(lineno)s]:%(message)s',
+        }
+    },
+    'handlers': {
+        'default': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': './logs/apps.log',
+            'formatter': 'verbose',
+        },
+        "request": {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': './logs/requests.log',
+            'formatter': 'verbose',
+        },
+    },
+    "loggers": {
+        "app": {
+            'level': 'INFO',
+            'handlers': ['default'],
+            'propagate': True
+        },
+        "request": {
+            'level': 'INFO',
+            'handlers': ['request'],
+            'propagate': True
+        },
+    }
+}
+
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'simple flask website'
+
+    LOGGING = LOGGING
 
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'simple flask website'
 
@@ -20,6 +58,9 @@ class Config(object):
     MAIL_SUBJECT_PREFIX = '[simple_website]'
     MAIL_SENDER = 'Simple Website Admin <994171686@qq.com>'
 
+    CACHE_TYPE = 'redis'
+    CACHE_REDIS_URL = 'redis://localhost:6379/1'
+
     @staticmethod
     def init_app(app):
         pass
@@ -32,7 +73,7 @@ class DevelopmentConfig(Config):
 
 
 class TestingConfig(Config):
-    #TESTING = True
+    # TESTING = True
     TESTING = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or \
         'sqlite://'
