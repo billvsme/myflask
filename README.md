@@ -6,6 +6,7 @@ flask快速启动项目，包含
 - GraphQL支持(Relay)
 - 阿里云SDK
 - 图片缩放服务
+- .env支持
 
 ## 运行
 ```
