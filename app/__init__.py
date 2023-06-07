@@ -34,7 +34,9 @@ def create_app(config_name):
 
     from .handlers import register_handlers, log_and_format_exception
     from .controllers.auth import auth_bp
+    from .controllers.file import file_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(file_bp, url_prefix='/file')
     register_handlers(app)
 
     from .scripts.database import init_db

@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from pathlib import Path
 
 from dotenv import dotenv_values
 
@@ -85,6 +86,8 @@ class Config(object):
     PAGE_SIZE = 10
 
     LOGGING = LOGGING
+
+    FILE_FOLDER = os.path.join(os.getcwd(), "file")
 
     JWT_SECRET_KEY = env.get('SECRET_KEY') or os.environ.get('JWT_SECRET_KEY') or 'simple flask website'
 
