@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_graphql import GraphQLView
 from flasgger import Swagger
+from app.utils.aliyun import Aliyun
 
 from config import config
 
@@ -16,6 +17,7 @@ db = SQLAlchemy()
 mail = Mail()
 cache = Cache()
 basic_auth = HTTPBasicAuth()
+aliyun = Aliyun()
 
 
 def create_app(config_name):
@@ -28,6 +30,7 @@ def create_app(config_name):
     mail.init_app(app)
     cache.init_app(app)
     JWTManager(app)
+    aliyun.init_app(app)
 
     from .handlers import register_handlers, log_and_format_exception
     from .controllers.auth import auth_bp

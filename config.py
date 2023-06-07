@@ -92,8 +92,8 @@ class Config(object):
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_USERNAME = env.get('MAIL_USERNAME') or '994171686@qq.com'
-    MAIL_PASSWORD = env.get('MAIL_PASSWORD') or 'mail password'
+    MAIL_USERNAME = env.get('MAIL_USERNAME') or os.environ.get('MAIL_USERNAME') or '994171686@qq.com'
+    MAIL_PASSWORD = env.get('MAIL_PASSWORD') or os.environ.get('MAIL_PASSWORD') or 'mail password'
 
     MAIL_SUBJECT_PREFIX = '[simple_website]'
     MAIL_SENDER = 'Simple Website Admin <994171686@qq.com>'
@@ -103,6 +103,9 @@ class Config(object):
 
     CACHE_TYPE = 'FileSystemCache'
     CACHE_DIR = "flask_cache_dir"
+
+    ALIYUN_ACCESS_KEY_ID = env.get('ALIYUN_ACCESS_KEY_ID') or os.environ.get('ALIYUN_ACCESS_KEY_ID') or ''
+    ALIYUN_ACCESS_KEY_SECRET = env.get('ALIYUN_ACCESS_KEY_SECRET') or os.environ.get('ALIYUN_ACCESS_KEY_SECRET') or ''
 
     # SQLALCHEMY_ENGINE_OPTIONS = {
     #     "pool_size": 5,
