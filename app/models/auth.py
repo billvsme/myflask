@@ -8,18 +8,46 @@ from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 from flask_jwt_extended import create_access_token, decode_token
 
 from .. import db
+from ..utils.common import get_uuid, utcnow
 
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(64), unique=True, index=True)
-    username = db.Column(db.String(64), unique=True, index=True)
+    uuid = db.Column(db.String(32), default=get_uuid, unique=True)
+    email = db.Column(db.String(64), unique=True)
+    username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
-    create_time = db.Column(db.DateTime, nullable=False, default=arrow.utcnow().datetime)
-    update_time = db.Column(db.DateTime, nullable=False, default=arrow.utcnow().datetime,
-                            onupdate=arrow.utcnow().datetime)
+    is_admin = db.Column(db.Boolean, default=False)
+    create_time = db.Column(db.DateTime, nullable=False, default=utcnow)
+    update_time = db.Column(db.DateTime, nullable=False, default=utcnow, onupdate=utcnow)
+
+    @classmethod
+    def save(cls, data):
+        user = cls(
+            email=data['email'],
+            username=data['username'],
+            password=data['password'],
+            confirmed=data.get('confirmed', False),
+            is_admin=data.get('is_admin', False),
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return user
+
+    def to_json(self):
+        return {
+            "uuid": self.uuid,
+            "email": self.email,
+            "username": self.username,
+            "confirmed": self.confirmed,
+            "is_admin": self.is_admin,
+            "create_time": arrow.get(self.create_time).isoformat(),
+            "update_time": arrow.get(self.update_time).isoformat()
+        }
 
     @property
     def password(self):

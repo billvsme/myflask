@@ -4,6 +4,7 @@ import logging
 import traceback
 
 from flask import g, request
+from graphql_server import default_format_error
 
 from . import basic_auth
 from .models.auth import User
@@ -11,6 +12,7 @@ from .errors import unauthorized, forbidden
 
 request_logger = logging.getLogger('request')
 error_logger = logging.getLogger('error')
+graphql_error_logger = logging.getLogger('graphql_error')
 
 
 @basic_auth.verify_password
@@ -102,4 +104,18 @@ def register_handlers(app):
     app.errorhandler(500)(errorhandler)
 
 
+def log_and_format_exception(self, error):
+    user_id = "geterr"
+    try:
 
+        user_id = g.current_user.id if hasattr(g, 'current_user') and g.current_user else None
+    except Exception:
+        pass
+
+    try:
+        error.reraise()
+    except Exception:
+        log_message = "{},{},{}".format(error.path, user_id, traceback.format_exc())
+        graphql_error_logger.error(log_message)
+
+    return default_format_error(error)

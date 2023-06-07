@@ -36,7 +36,16 @@ LOGGING = {
             'filename': './logs/error.log',
             'formatter': 'verbose',
         },
-
+        "graphql_error": {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': './logs/graphql_error.log',
+            'formatter': 'verbose',
+        },
+        "sms": {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': './logs/sms.log',
+            'formatter': 'verbose',
+        },
     },
     "loggers": {
         "app": {
@@ -54,12 +63,26 @@ LOGGING = {
             'handlers': ['error'],
             'propagate': True
         },
+        "graphql_error": {
+            'level': 'INFO',
+            'handlers': ['graphql_error'],
+            'propagate': True
+        },
+        "sms": {
+            'level': 'INFO',
+            'handlers': ['sms'],
+            'propagate': True
+        },
     }
 }
 
 
 class Config(object):
+    JSON_SORT_KEYS = False
+
     SECRET_KEY = env.get('SECRET_KEY') or os.environ.get('SECRET_KEY') or 'simple flask website'
+
+    PAGE_SIZE = 10
 
     LOGGING = LOGGING
 
@@ -69,8 +92,8 @@ class Config(object):
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_USERNAME = '994171686@qq.com'
-    MAIL_PASSWORD = 'fsiwanjpsnyrbdbc'
+    MAIL_USERNAME = env.get('MAIL_USERNAME') or '994171686@qq.com'
+    MAIL_PASSWORD = env.get('MAIL_PASSWORD') or 'mail password'
 
     MAIL_SUBJECT_PREFIX = '[simple_website]'
     MAIL_SENDER = 'Simple Website Admin <994171686@qq.com>'
@@ -94,6 +117,7 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = env.get('DATABASE_URI') or os.environ.get('DEV_DATABASE_URI') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 

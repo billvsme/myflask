@@ -1,37 +1,50 @@
 # coding: utf-8
 from flask import g, request, Blueprint
 from schema import Schema, And, Use, Optional, SchemaError
+from flasgger import swag_from
+from sqlalchemy.sql import or_
 
-from ..utils import login_required
+from ..utils.auth import login_required
 from .. import db, basic_auth
 from ..email import send_email
 from ..errors import bad_request, forbidden, unauthorized
 from ..models.auth import User
+from ..docs.auth import login_swagger, register_swagger, change_password_swagger
 
 auth_bp = Blueprint('auth', __name__)
 
+
 @auth_bp.route('login', methods=['POST'])
+@swag_from(login_swagger)
 def login():
     json_data = request.get_json()
 
     try:
         validated = Schema({
-            "email": And(Use(str), len, error='Incorrect email.'),
+            "username": And(Use(str), len, error='Incorrect username.'),
             'password': And(Use(str), lambda s: len(s) >= 6, error='Incorrect password.')
         }).validate(json_data)
     except SchemaError as e:
         return {'code': -1, 'error': str(e)}, 500
 
-    user = User.query.filter_by(email=validated['email']) .first()
+    user = User.query.filter(or_(
+        User.username == validated['username'],
+        User.email == validated['username']),
+        User.confirmed.is_(True)
+    ) .first()
     if not user or \
             not user.verify_password(validated['password']):
-        return unauthorized('email or password error')
+        return unauthorized('username or password error')
 
     EXPIRATION = 14*24*60*60
-    return {'access_token': user.generate_auth_jwt_token(expiration=EXPIRATION), 'expiration': EXPIRATION}, 200
+    return {
+        'access_token': user.generate_auth_jwt_token(expiration=EXPIRATION),
+        'expiration': EXPIRATION
+    }, 200
 
 
 @auth_bp.route('/register', methods=['POST'])
+@swag_from(register_swagger)
 def register():
     json_data = request.get_json()
 
@@ -83,6 +96,7 @@ def confirm(token):
 
 @auth_bp.route('/change-password', methods=['POST'])
 @login_required
+@swag_from(change_password_swagger)
 def change_password():
     json_data = request.get_json()
 
@@ -121,6 +135,7 @@ def reset_password_request():
                    'email/reset_password', user=user, token=token)
 
     return {'message': 'success'}, 200
+
 
 @auth_bp.route('/reset-password/<token>')
 def reset_password(token):
