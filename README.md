@@ -1,5 +1,11 @@
-simple-website
+myflask
 ==============
+flask快速启动项目，包含
+- 基础用户登陆注册
+- Swagger文档支持
+- GraphQL支持
+- 阿里云SDK
+- 图片缩放服务
 
 ## 运行
 ```
@@ -11,8 +17,8 @@ pip install -r requirements.txt
 cp .env.example .env
 # 修改.env为合适的值
 
-export FLASK_APP="simple_website.py"
-export FLASK_ENV=development
+export FLASK_APP="myflask"
+export FLASK_CONFIG=development
 flask run
 
 curl http://127.0.0.1:5000/hello
@@ -21,7 +27,7 @@ curl http://127.0.0.1:5000/hello
 ## Swagger
 浏览器打开 http://127.0.0.1:5000/apidocs
 
-## graphql
+## GraphQL
 浏览器打开 http://127.0.0.1:5000/graphql
 ```
 # 用户筛选
@@ -47,6 +53,10 @@ mutation test {
 }
 ```
 
-## 文件服务
+## 文件缩放服务
 支持对图片缩放,通过w指定宽度
 浏览器打开 http://127.0.0.1:5000/file/image/1.jpg?w=100
+
+## 阿里云SDK
+代码路径 app/utils/aliyun.py
+目前包含短信发送
