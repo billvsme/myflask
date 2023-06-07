@@ -25,6 +25,12 @@ LOGGING = {
             'filename': './logs/requests.log',
             'formatter': 'verbose',
         },
+        "error": {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': './logs/error.log',
+            'formatter': 'verbose',
+        },
+
     },
     "loggers": {
         "app": {
@@ -35,6 +41,11 @@ LOGGING = {
         "request": {
             'level': 'INFO',
             'handlers': ['request'],
+            'propagate': True
+        },
+        "error": {
+            'level': 'INFO',
+            'handlers': ['error'],
             'propagate': True
         },
     }

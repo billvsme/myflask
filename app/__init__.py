@@ -34,6 +34,7 @@ def create_app(config_name):
 
     @app.route('/hello')
     def hello():
+        1/0
         return 'Hellow World!'
 
     return app

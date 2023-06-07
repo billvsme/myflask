@@ -4,8 +4,8 @@ from datetime import timedelta
 import arrow
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask_jwt_extended import create_access_token, decode_token, get_jwt_identity
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
+from flask_jwt_extended import create_access_token, decode_token
 
 from .. import db
 
@@ -47,7 +47,7 @@ class User(db.Model):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except:
+        except Exception:
             return None
 
         return User.query.get(data['id'])
@@ -62,7 +62,7 @@ class User(db.Model):
         try:
             data = decode_token(token)
             assert data['identity']['confirm'] == self.id
-        except:
+        except Exception:
             return False
 
         self.confirmed = True
@@ -81,7 +81,7 @@ class User(db.Model):
         try:
             data = decode_token(token)
             user = User.query.get(data['identity']['reset'])
-        except:
+        except Exception:
             return False
 
         if user is None:
