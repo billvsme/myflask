@@ -3,7 +3,7 @@ myflask
 flask快速启动项目，包含
 - 基础用户登陆注册
 - Swagger文档支持
-- GraphQL支持
+- GraphQL支持(Relay)
 - 阿里云SDK
 - 图片缩放服务
 
@@ -28,7 +28,8 @@ curl http://127.0.0.1:5000/hello
 浏览器打开 http://127.0.0.1:5000/apidocs
 
 ## GraphQL
-浏览器打开 http://127.0.0.1:5000/graphql
+浏览器打开 http://127.0.0.1:5000/graphql  
+支持Relay
 ```
 # 用户筛选
 query {
