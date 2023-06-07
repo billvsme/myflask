@@ -54,9 +54,9 @@ mutation test {
 ```
 
 ## 文件缩放服务
-支持对图片缩放,通过w指定宽度
-浏览器打开 http://127.0.0.1:5000/file/image/1.jpg?w=100
+支持对图片缩放,通过w指定宽度  
+浏览器打开 http://127.0.0.1:5000/file/image/1.jpg?w=100  
 
 ## 阿里云SDK
-代码路径 app/utils/aliyun.py
-目前包含短信发送
+代码路径 app/utils/aliyun.py  
+目前包含短信发送  
