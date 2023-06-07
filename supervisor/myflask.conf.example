@@ -1,0 +1,7 @@
+[program:myflask]
+directory=/home/billvsme/services/myflask
+environment=FLASK_APP=myflask,FLASK_CONFIG=testing
+command=/home/billvsme/venv/clinical/bin/gunicorn --limit-request-line 0 -b 127.0.0.1:8001 --workers=4 myflask:app
+stdout_logfile=/home/billvsme/log/myflask.log
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=10

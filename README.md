@@ -9,7 +9,7 @@ flask快速启动项目，包含
 
 ## 运行
 ```
-development
+开发环境
 
 python -m venv ./venv
 . ./venv/bin/activate
@@ -60,3 +60,8 @@ mutation test {
 ## 阿里云SDK
 代码路径 app/utils/aliyun.py  
 目前包含短信发送  
+
+## 正式环境部署
+```
+supervisor配置参考supervisor/myflask.conf.example
+```
